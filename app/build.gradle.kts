@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "ir.madadyar"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "ir.madadyar"
@@ -49,6 +49,37 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    
+    // Navigation
+    implementation(libs.navigation.compose)
+    
+    // ViewModel
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.lifecycle.runtime.compose)
+    
+    // Networking
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    
+    // Image Loading
+    implementation(libs.coil.compose)
+    
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.android)
+    
+    // DataStore
+    implementation(libs.datastore.preferences)
+    
+    // Accompanist
+    implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.accompanist.pager)
+    implementation(libs.accompanist.pager.indicators)
+    
+    // Gson
+    implementation(libs.gson)
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
