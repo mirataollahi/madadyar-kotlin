@@ -6,6 +6,6 @@ import androidx.compose.ui.text.font.FontWeight
 import ir.madadyar.R
 
 val iransansFontFamily = FontFamily(
-    Font(R.font.iranyekanmobileregular, FontWeight.Normal),
-    Font(R.font.iransansbold, FontWeight.Bold)
+    Font(R.font.iranyekan_mobile_regular, FontWeight.Normal),
+    Font(R.font.iransans_bold, FontWeight.Bold)
 )

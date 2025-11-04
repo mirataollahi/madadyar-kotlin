@@ -27,7 +27,6 @@ import coil.compose.AsyncImage
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
-import com.google.accompanist.pager.animateScrollToPage
 import ir.madadyar.data.model.Book
 import ir.madadyar.data.model.BookCategory
 import ir.madadyar.data.model.Video
