@@ -8,8 +8,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object ApiClient {
-    private const val BASE_URL = "http://192.168.88.66:8000/api/v1/"
-    const val IMAGE_BASE_URL = "http://192.168.88.66:8000"
+    private const val BASE_URL = "https://madadyar.karmaniacloud.ir/api/v1/"
+    const val IMAGE_BASE_URL = "https://madadyar.karmaniacloud.ir"
     
     private var token: String? = null
     

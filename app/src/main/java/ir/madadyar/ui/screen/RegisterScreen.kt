@@ -20,6 +20,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import ir.madadyar.ui.theme.*
 import ir.madadyar.ui.viewmodel.AuthViewModel
 import ir.madadyar.ui.component.ErrorDialog
+import ir.madadyar.ui.component.AuthGradientBackground
+import ir.madadyar.ui.component.AuthHeader
+import ir.madadyar.ui.component.PrimaryButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,17 +53,8 @@ fun RegisterScreen(
         }
     }
     
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("ثبت نام", fontFamily = iransansFontFamily) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkSurface
-                )
-            )
-        },
-        containerColor = DarkSurfaceLight
-    ) { padding ->
+    Scaffold(containerColor = Color.Transparent) { padding ->
+        AuthGradientBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -68,6 +62,7 @@ fun RegisterScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            AuthHeader(title = "ایجاد حساب", subtitle = "نام و شماره موبایل خود را وارد کنید")
             Spacer(modifier = Modifier.height(16.dp))
             
             // Register Card
@@ -75,20 +70,14 @@ fun RegisterScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp),
-                shape = RoundedCornerShape(3.dp),
+                shape = RoundedCornerShape(10.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkSurface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(15.dp)
                 ) {
-                    Text(
-                        text = "ایجاد حساب",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Black,
-                        color = White,
-                        fontFamily = iransansFontFamily
-                    )
+                    Text(text = "ثبت نام", fontSize = 18.sp, fontWeight = FontWeight.Black, color = White, fontFamily = iransansFontFamily)
                     
                     Spacer(modifier = Modifier.height(25.dp))
                     
@@ -117,7 +106,12 @@ fun RegisterScreen(
                             cursorColor = White
                         ),
                         singleLine = true,
-                        shape = RoundedCornerShape(4.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        supportingText = {
+                            if (username.text.isEmpty()) {
+                                Text("نام خود را وارد کنید", color = White.copy(alpha = 0.6f), fontFamily = iransansFontFamily)
+                            }
+                        }
                     )
                     
                     Spacer(modifier = Modifier.height(10.dp))
@@ -152,40 +146,30 @@ fun RegisterScreen(
                             cursorColor = White
                         ),
                         singleLine = true,
-                        shape = RoundedCornerShape(4.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        supportingText = {
+                            val valid = phoneNumber.text.length == 11
+                            if (!valid && phoneNumber.text.isNotEmpty()) {
+                                Text("فرمت شماره صحیح نیست", color = MaterialTheme.colorScheme.error, fontFamily = iransansFontFamily)
+                            } else {
+                                Text("مثال: 09123456789", color = White.copy(alpha = 0.6f), fontFamily = iransansFontFamily)
+                            }
+                        }
                     )
                     
                     Spacer(modifier = Modifier.height(15.dp))
                     
                     // Continue Button
-                    Button(
+                    PrimaryButton(
+                        text = "ادامه",
+                        enabled = username.text.isNotEmpty() && phoneNumber.text.length == 11,
+                        isLoading = isLoading,
                         onClick = {
                             if (username.text.isNotEmpty() && phoneNumber.text.length == 11) {
                                 viewModel.register(username.text, phoneNumber.text)
                             }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        enabled = !isLoading && username.text.isNotEmpty() && phoneNumber.text.length == 11,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isLoading) DarkSurfaceLight else GreenAccent,
-                            disabledContainerColor = DarkSurfaceLight
-                        ),
-                        shape = RoundedCornerShape(3.dp)
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(color = White)
-                        } else {
-                            Text(
-                                text = "ادامه",
-                                color = White,
-                                fontWeight = FontWeight.Black,
-                                fontSize = 16.sp,
-                                fontFamily = iransansFontFamily
-                            )
                         }
-                    }
+                    )
                 }
             }
             
@@ -207,7 +191,7 @@ fun RegisterScreen(
                     onDismiss = { viewModel.clearError() }
                 )
             }
-        }
+        } }
     }
 }
 

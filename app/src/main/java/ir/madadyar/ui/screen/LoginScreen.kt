@@ -18,6 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ir.madadyar.ui.theme.*
+import ir.madadyar.ui.component.AuthGradientBackground
+import ir.madadyar.ui.component.AuthHeader
+import ir.madadyar.ui.component.PrimaryButton
 import ir.madadyar.ui.viewmodel.AuthViewModel
 import ir.madadyar.ui.component.ErrorDialog
 
@@ -49,22 +52,8 @@ fun LoginScreen(
         }
     }
     
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("ورود", fontFamily = iransansFontFamily) },
-                navigationIcon = {
-                    IconButton(onClick = { /* Navigate back */ }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkSurface
-                )
-            )
-        },
-        containerColor = DarkSurfaceLight
-    ) { padding ->
+    Scaffold(containerColor = Color.Transparent) { padding ->
+        AuthGradientBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -72,27 +61,21 @@ fun LoginScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            AuthHeader(title = "خوش آمدید", subtitle = "برای ادامه شماره موبایل خود را وارد کنید")
             Spacer(modifier = Modifier.height(16.dp))
             
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp),
-                shape = RoundedCornerShape(3.dp),
+                shape = RoundedCornerShape(10.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkSurface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(15.dp)
                 ) {
-                    Text(
-                        text = "ورود",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Black,
-                        color = White,
-                        fontFamily = iransansFontFamily
-                    )
-                    
+                    Text(text = "ورود", fontSize = 18.sp, fontWeight = FontWeight.Black, color = White, fontFamily = iransansFontFamily)
                     Spacer(modifier = Modifier.height(10.dp))
                     
                     Text(
@@ -124,39 +107,25 @@ fun LoginScreen(
                             cursorColor = White
                         ),
                         singleLine = true,
-                        shape = RoundedCornerShape(4.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        supportingText = {
+                            val valid = phoneNumber.text.length == 11
+                            if (!valid && phoneNumber.text.isNotEmpty()) {
+                                Text("فرمت شماره صحیح نیست", color = MaterialTheme.colorScheme.error, fontFamily = iransansFontFamily)
+                            } else {
+                                Text("مثال: 09123456789", color = White.copy(alpha = 0.6f), fontFamily = iransansFontFamily)
+                            }
+                        }
                     )
                     
                     Spacer(modifier = Modifier.height(15.dp))
                     
-                    Button(
-                        onClick = {
-                            if (phoneNumber.text.length == 11) {
-                                viewModel.login(phoneNumber.text)
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        enabled = !isLoading && phoneNumber.text.length == 11,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isLoading) DarkSurfaceLight else GreenAccent,
-                            disabledContainerColor = DarkSurfaceLight
-                        ),
-                        shape = RoundedCornerShape(3.dp)
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(color = White)
-                        } else {
-                            Text(
-                                text = "ادامه",
-                                color = White,
-                                fontWeight = FontWeight.Black,
-                                fontSize = 16.sp,
-                                fontFamily = iransansFontFamily
-                            )
-                        }
-                    }
+                    PrimaryButton(
+                        text = "ادامه",
+                        enabled = phoneNumber.text.length == 11,
+                        isLoading = isLoading,
+                        onClick = { if (phoneNumber.text.length == 11) viewModel.login(phoneNumber.text) }
+                    )
                 }
             }
             
@@ -177,7 +146,7 @@ fun LoginScreen(
                     onDismiss = { viewModel.clearError() }
                 )
             }
-        }
+        } }
     }
 }
 

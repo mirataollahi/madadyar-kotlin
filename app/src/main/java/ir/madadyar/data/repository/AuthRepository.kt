@@ -5,6 +5,7 @@ import ir.madadyar.data.model.LoginRequest
 import ir.madadyar.data.model.RegisterRequest
 import ir.madadyar.data.model.VerifyRequest
 import ir.madadyar.util.ErrorHandler
+import ir.madadyar.util.ApiErrorMapper
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -24,7 +25,7 @@ class AuthRepository {
                         Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
                     }
                 } else {
-                    Result.failure(Exception(apiResponse.message))
+                    Result.failure(Exception(ApiErrorMapper.messageFor(apiResponse.code, apiResponse.message)))
                 }
             } else {
                 Result.failure(Exception("خطا در ارتباط با سرور"))
@@ -51,7 +52,7 @@ class AuthRepository {
                         Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
                     }
                 } else {
-                    Result.failure(Exception(apiResponse.message))
+                    Result.failure(Exception(ApiErrorMapper.messageFor(apiResponse.code, apiResponse.message)))
                 }
             } else {
                 Result.failure(Exception("خطا در ارتباط با سرور"))
@@ -78,7 +79,7 @@ class AuthRepository {
                         Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
                     }
                 } else {
-                    Result.failure(Exception(apiResponse.message))
+                    Result.failure(Exception(ApiErrorMapper.messageFor(apiResponse.code, apiResponse.message)))
                 }
             } else {
                 Result.failure(Exception("خطا در ارتباط با سرور"))

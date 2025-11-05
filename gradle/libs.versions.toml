@@ -15,7 +15,7 @@ navigation = "2.7.6"
 viewmodel = "2.7.0"
 coroutines = "1.7.3"
 gson = "2.10.1"
-dataStore = "1.0.0"
+dataStore = "1.1.1"
 accompanist = "0.32.0"
 
 [libraries]
