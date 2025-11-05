@@ -14,15 +14,18 @@ class BooksRepository {
         return try {
             val response = apiService.getBooks(page)
             if (response.isSuccessful && response.body() != null) {
-                val body = response.body()!!
-                Result.success(Pair(body.data, body.totalPage))
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    val booksData = apiResponse.data!!
+                    Result.success(Pair(booksData.data, booksData.totalPage))
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -34,14 +37,17 @@ class BooksRepository {
         return try {
             val response = apiService.getBookById(id)
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!.data)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    Result.success(apiResponse.data!!.book)
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -53,15 +59,18 @@ class BooksRepository {
         return try {
             val response = apiService.getBooksByCategory(catId, page)
             if (response.isSuccessful && response.body() != null) {
-                val body = response.body()!!
-                Result.success(Pair(body.data, body.totalPage))
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    val booksData = apiResponse.data!!
+                    Result.success(Pair(booksData.data, booksData.totalPage))
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -73,15 +82,18 @@ class BooksRepository {
         return try {
             val response = apiService.searchBooks(query, page)
             if (response.isSuccessful && response.body() != null) {
-                val body = response.body()!!
-                Result.success(Pair(body.data, body.totalPage))
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    val booksData = apiResponse.data!!
+                    Result.success(Pair(booksData.data, booksData.totalPage))
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -93,14 +105,17 @@ class BooksRepository {
         return try {
             val response = apiService.getBookCategories()
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    Result.success(apiResponse.data!!.categories)
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -112,14 +127,17 @@ class BooksRepository {
         return try {
             val response = apiService.getMainBookCategories()
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    Result.success(apiResponse.data!!.categories)
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -131,14 +149,17 @@ class BooksRepository {
         return try {
             val response = apiService.getBookCategoriesByParent(catId)
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    Result.success(apiResponse.data!!.categories)
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {

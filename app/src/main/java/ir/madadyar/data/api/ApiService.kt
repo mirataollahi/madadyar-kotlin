@@ -6,65 +6,66 @@ import retrofit2.http.*
 
 interface ApiService {
     
-    // User endpoints
-    @POST("register")
-    suspend fun register(@Body request: RegisterRequest): Response<String>
+    // ==================== AUTHENTICATION ENDPOINTS ====================
+    @POST("auth/register")
+    suspend fun register(@Body request: RegisterRequest): Response<ApiResponse<LoginResponseData>>
     
-    @POST("login")
-    suspend fun login(@Body request: LoginRequest): Response<String>
+    @POST("auth/login")
+    suspend fun login(@Body request: LoginRequest): Response<ApiResponse<LoginResponseData>>
     
-    @POST("verify-register")
-    suspend fun verifyRegister(@Body request: VerifyRequest): Response<String>
+    @POST("auth/verify-register")
+    suspend fun verifyRegister(@Body request: VerifyRequest): Response<ApiResponse<VerifyResponseData>>
     
-    @POST("verify-login")
-    suspend fun verifyLogin(@Body request: VerifyRequest): Response<String>
+    @POST("auth/verify-login")
+    suspend fun verifyLogin(@Body request: VerifyRequest): Response<ApiResponse<VerifyResponseData>>
     
-    // Book endpoints
+    // ==================== BOOK ENDPOINTS ====================
     @GET("books")
-    suspend fun getBooks(@Query("page") page: Int): Response<BooksResponse>
+    suspend fun getBooks(@Query("page") page: Int): Response<ApiResponse<BooksResponseData>>
     
     @GET("books/{id}")
-    suspend fun getBookById(@Path("id") id: Int): Response<BookDetailResponse>
+    suspend fun getBookById(@Path("id") id: Int): Response<ApiResponse<BookDetailResponseData>>
     
     @GET("books/get-by-cat-id/{catId}")
     suspend fun getBooksByCategory(
         @Path("catId") catId: Int,
         @Query("page") page: Int
-    ): Response<BooksResponse>
+    ): Response<ApiResponse<BooksResponseData>>
     
-    @GET("books/search/{query}")
+    @GET("books/search/{q}")
     suspend fun searchBooks(
-        @Path("query") query: String,
+        @Path("q") query: String,
         @Query("page") page: Int
-    ): Response<BooksResponse>
+    ): Response<ApiResponse<BooksResponseData>>
     
-    // Video endpoints
+    // ==================== VIDEO ENDPOINTS ====================
     @GET("videos")
-    suspend fun getVideos(): Response<List<Video>>
+    suspend fun getVideos(): Response<ApiResponse<VideosResponseData>>
     
     @GET("videos/{id}")
-    suspend fun getVideoById(@Path("id") id: Int): Response<VideoDetailResponse>
+    suspend fun getVideoById(@Path("id") id: Int): Response<ApiResponse<VideoDetailResponseData>>
     
     @GET("videos/get-by-cat-id/{catId}")
-    suspend fun getVideosByCategory(@Path("catId") catId: Int): Response<List<Video>>
+    suspend fun getVideosByCategory(@Path("catId") catId: Int): Response<ApiResponse<VideosResponseData>>
     
-    @GET("videos/search/{query}")
-    suspend fun searchVideos(@Path("query") query: String): Response<List<Video>>
+    @GET("videos/search/{q}")
+    suspend fun searchVideos(@Path("q") query: String): Response<ApiResponse<VideosResponseData>>
     
-    // Category endpoints
+    // ==================== BOOK CATEGORY ENDPOINTS ====================
     @GET("book-categories")
-    suspend fun getBookCategories(): Response<List<BookCategory>>
+    suspend fun getBookCategories(): Response<ApiResponse<CategoriesResponseData>>
     
-    @GET("book-categories/main")
-    suspend fun getMainBookCategories(): Response<List<BookCategory>>
+    @GET("book-categories/main-categories")
+    suspend fun getMainBookCategories(): Response<ApiResponse<CategoriesResponseData>>
     
-    @GET("book-categories/{catId}")
-    suspend fun getBookCategoriesByParent(@Path("catId") catId: Int): Response<List<BookCategory>>
+    @GET("book-categories/get-by-cat-id/{catId}")
+    suspend fun getBookCategoriesByParent(@Path("catId") catId: Int): Response<ApiResponse<CategoriesResponseData>>
     
+    // ==================== VIDEO CATEGORY ENDPOINTS ====================
     @GET("video-categories")
-    suspend fun getVideoCategories(): Response<List<VideoCategory>>
+    suspend fun getVideoCategories(): Response<ApiResponse<VideoCategoriesResponseData>>
     
-    @GET("video-categories/{catId}")
-    suspend fun getVideoCategoriesByParent(@Path("catId") catId: Int): Response<List<VideoCategory>>
+    @GET("video-categories/get-by-cat-id/{catId}")
+    suspend fun getVideoCategoriesByParent(@Path("catId") catId: Int): Response<ApiResponse<VideoCategoriesResponseData>>
 }
 

@@ -1,0 +1,1267 @@
+openapi: 3.0.0
+info:
+  title: Madadyar API Documentation
+  description: API documentation for madadyar project. All responses return HTTP 200 status code. Check the `code` field in JSON response to determine success (200) or failure (error codes).
+  version: 1.0.0
+  contact:
+    name: API Support
+
+servers:
+  - url: http://192.168.88.66:8000/api/v1
+    description: API Server
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
+
+  schemas:
+    BaseResponse:
+      type: object
+      required:
+        - status
+        - code
+        - message
+        - data
+      properties:
+        status:
+          type: boolean
+          description: Indicates if the request was successful (true) or failed (false). HTTP status is always 200.
+          example: true
+        code:
+          type: integer
+          description: Response code. 200 = success, other codes indicate specific error types. HTTP status is always 200.
+          example: 200
+        message:
+          type: string
+          description: Human-readable message describing the result
+          example: Operation completed successfully
+        data:
+          type: object
+          description: Response data (structure varies by endpoint)
+          nullable: true
+
+    ErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            status:
+              type: boolean
+              example: false
+            code:
+              type: integer
+              description: Error code (not 200)
+              example: 500
+            message:
+              type: string
+              example: An error occurred
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        phone_number:
+          type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        category:
+          type: object
+        ispurchased:
+          type: boolean
+
+    Video:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: object
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        parent_id:
+          type: integer
+          nullable: true
+
+    Cart:
+      type: object
+      properties:
+        id:
+          type: integer
+        items:
+          type: array
+          items:
+            type: object
+        price:
+          type: number
+        close:
+          type: boolean
+
+    PaymentLink:
+      type: object
+      properties:
+        link:
+          type: string
+          description: Payment gateway URL
+        trans_id:
+          type: string
+
+paths:
+  # ==================== AUTHENTICATION ENDPOINTS ====================
+  /auth/login:
+    post:
+      operationId: auth.login
+      summary: Login with phone number
+      description: |
+        Send phone number to receive verification code. The code will be sent via SMS.
+        After receiving the code, use `/verify-login` endpoint to complete login.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone_number
+              properties:
+                phone_number:
+                  type: string
+                  pattern: '^\d{11}$'
+                  description: Phone number (11 digits)
+                  example: "09368373672"
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          code:
+                            type: integer
+                            description: Verification code (for testing only, should not be returned in production)
+                            example: 1234
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "کد تایید با موفقیت ارسال شد."
+                    data:
+                      user:
+                        id: 1
+                        phone_number: "09368373672"
+                      code: 1234
+                error:
+                  value:
+                    status: false
+                    code: 704
+                    message: "کاربر یافت نشد."
+                    data: null
+
+  /auth/verify-login:
+    post:
+      operationId: auth.verifyLogin
+      summary: Verify login code
+      description: |
+        Verify the code received via SMS and complete login process.
+        Returns authentication token on success.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone_number
+                - verification_code
+              properties:
+                phone_number:
+                  type: string
+                  pattern: '^\d{11}$'
+                  description: Phone number (11 digits)
+                  example: "09368373672"
+                verification_code:
+                  type: string
+                  pattern: '^\d{4}$'
+                  description: 4-digit verification code
+                  example: "1234"
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          token:
+                            type: string
+                            description: JWT authentication token
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "ورود با موفقیت انجام شد."
+                    data:
+                      user:
+                        id: 1
+                        phone_number: "09368373672"
+                      token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                error:
+                  value:
+                    status: false
+                    code: 702
+                    message: "کد تایید صحیح نیست."
+                    data: null
+
+  /auth/register:
+    post:
+      operationId: auth.register
+      summary: Register new user
+      description: |
+        Register a new user with username and phone number.
+        A verification code will be sent via SMS.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - phone_number
+              properties:
+                username:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  description: Username for the user
+                  example: "amirreza.mirataollahi"
+                phone_number:
+                  type: string
+                  pattern: '^\d{11}$'
+                  description: Phone number (11 digits)
+                  example: "09368373672"
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          code:
+                            type: integer
+                            description: Verification code (for testing only)
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "کد تایید با موفقیت ارسال شد."
+                    data:
+                      user:
+                        id: 1
+                        username: "John Doe"
+                        phone_number: "09368373672"
+                      code: 1234
+                error:
+                  value:
+                    status: false
+                    code: 422
+                    message: "خطا در اعتبارسنجی."
+                    data: null
+
+  /auth/verify-register:
+    post:
+      operationId: auth.verifyRegister
+      summary: Verify registration code
+      description: |
+        Verify the registration code and activate user account.
+        Returns authentication token on success.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone_number
+                - verification_code
+              properties:
+                phone_number:
+                  type: string
+                  pattern: '^\d{11}$'
+                  description: Phone number (11 digits)
+                  example: "09368373672"
+                verification_code:
+                  type: string
+                  pattern: '^\d{4}$'
+                  description: 4-digit verification code
+                  example: "1234"
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          token:
+                            type: string
+                            description: JWT authentication token
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "ثبت نام با موفقیت انجام شد."
+                    data:
+                      user:
+                        id: 1
+                        phone_number: "09368373672"
+                      token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                error:
+                  value:
+                    status: false
+                    code: 702
+                    message: "کد تایید صحیح نیست."
+                    data: null
+
+  # ==================== BOOKS ENDPOINTS ====================
+  /books:
+    get:
+      operationId: books.index
+      summary: Get all books
+      description: Retrieve a paginated list of all books
+      tags:
+        - Books
+      security:
+        - bearer: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          data:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Book'
+                          totalPage:
+                            type: integer
+                            description: Total number of pages
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "اطلاعات با موفقیت دریافت شد."
+                    data:
+                      data:
+                        - id: 1
+                          title: "Book Title"
+                          price: 100000
+                      totalPage: 10
+
+    # Note: POST, PUT, DELETE are not implemented in controller
+
+  /books/{id}:
+    get:
+      operationId: books.show
+      summary: Get book by ID
+      description: Retrieve detailed information about a specific book
+      tags:
+        - Books
+      security:
+        - bearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Book ID
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          book:
+                            $ref: '#/components/schemas/Book'
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "اطلاعات با موفقیت دریافت شد."
+                    data:
+                      book:
+                        id: 1
+                        title: "Book Title"
+                        ispurchased: false
+                error:
+                  value:
+                    status: false
+                    code: 405
+                    message: "کتاب یافت نشد."
+                    data: null
+
+  /books/search/{q}:
+    get:
+      operationId: books.search
+      summary: Search books
+      description: Search books by query string
+      tags:
+        - Books
+      security:
+        - bearer: []
+      parameters:
+        - name: q
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Search query
+          example: "programming"
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          data:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Book'
+                          totalPage:
+                            type: integer
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "نتایج جستجو با موفقیت دریافت شد."
+                    data:
+                      data: []
+                      totalPage: 1
+
+  /books/get-by-cat-id/{catId}:
+    get:
+      operationId: books.getByCategory
+      summary: Get books by category ID
+      description: Retrieve all books in a specific category
+      tags:
+        - Books
+      security:
+        - bearer: []
+      parameters:
+        - name: catId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Category ID
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          data:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Book'
+                          totalPage:
+                            type: integer
+
+  /book/purchased_book:
+    post:
+      operationId: books.purchasedBook
+      summary: Get purchased books or check purchase status
+      description: |
+        If `book_id` is provided, returns whether the book is purchased.
+        If `book_id` is not provided, returns all purchased books.
+      tags:
+        - Books
+      security:
+        - bearer: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                book_id:
+                  type: integer
+                  description: Optional book ID to check purchase status
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        oneOf:
+                          - type: object
+                            properties:
+                              is_purchased:
+                                type: boolean
+                                description: Whether the book is purchased (when book_id provided)
+                          - type: object
+                            properties:
+                              books:
+                                type: array
+                                items:
+                                  type: object
+                                description: List of purchased books (when book_id not provided)
+              examples:
+                withBookId:
+                  value:
+                    status: true
+                    code: 200
+                    message: "اطلاعات با موفقیت دریافت شد."
+                    data:
+                      is_purchased: true
+                withoutBookId:
+                  value:
+                    status: true
+                    code: 200
+                    message: "کتاب‌های خریداری شده با موفقیت دریافت شد."
+                    data:
+                      books: []
+
+  # ==================== VIDEOS ENDPOINTS ====================
+  /videos:
+    get:
+      operationId: videos.index
+      summary: Get all videos
+      description: Retrieve a list of all videos
+      tags:
+        - Videos
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          data:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Video'
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "اطلاعات با موفقیت دریافت شد."
+                    data:
+                      data: []
+                empty:
+                  value:
+                    status: true
+                    code: 200
+                    message: "اطلاعاتی یافت نشد."
+                    data:
+                      data: []
+
+  /videos/{id}:
+    get:
+      operationId: videos.show
+      summary: Get video by ID
+      description: Retrieve detailed information about a specific video
+      tags:
+        - Videos
+      security:
+        - bearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Video ID
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          video:
+                            $ref: '#/components/schemas/Video'
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "اطلاعات با موفقیت دریافت شد."
+                    data:
+                      video:
+                        id: 1
+                        title: "Video Title"
+                error:
+                  value:
+                    status: false
+                    code: 405
+                    message: "ویدیو یافت نشد."
+                    data: null
+
+  /videos/search/{q}:
+    get:
+      operationId: videos.search
+      summary: Search videos
+      description: Search videos by query string
+      tags:
+        - Videos
+      security:
+        - bearer: []
+      parameters:
+        - name: q
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Search query
+          example: "tutorial"
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          data:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Video'
+
+  /videos/get-by-cat-id/{catId}:
+    get:
+      operationId: videos.getByCategory
+      summary: Get videos by category ID
+      description: Retrieve all videos in a specific category
+      tags:
+        - Videos
+      security:
+        - bearer: []
+      parameters:
+        - name: catId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Category ID
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          data:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Video'
+
+  # ==================== BOOK CATEGORIES ENDPOINTS ====================
+  /book-categories:
+    get:
+      operationId: bookCategories.index
+      summary: Get all book categories
+      description: Retrieve a list of all book categories
+      tags:
+        - Book Categories
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          categories:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Category'
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "دسته‌بندی‌ها با موفقیت دریافت شد."
+                    data:
+                      categories: []
+
+  /book-categories/main-categories:
+    get:
+      operationId: bookCategories.mainCategories
+      summary: Get main book categories
+      description: Retrieve only main categories (categories without parent)
+      tags:
+        - Book Categories
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          categories:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Category'
+
+  /book-categories/get-by-cat-id/{catId}:
+    get:
+      operationId: bookCategories.getByCategoryId
+      summary: Get category by ID
+      description: Retrieve category information and its subcategories
+      tags:
+        - Book Categories
+      security:
+        - bearer: []
+      parameters:
+        - name: catId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Category ID
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          categories:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Category'
+              examples:
+                error:
+                  value:
+                    status: false
+                    code: 405
+                    message: "دسته‌بندی یافت نشد."
+                    data: null
+
+  # ==================== VIDEO CATEGORIES ENDPOINTS ====================
+  /video-categories:
+    get:
+      operationId: videoCategories.index
+      summary: Get all video categories
+      description: Retrieve a list of all video categories
+      tags:
+        - Video Categories
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          categories:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Category'
+
+  /video-categories/main-categories:
+    get:
+      operationId: videoCategories.mainCategories
+      summary: Get main video categories
+      description: Retrieve only main categories (categories without parent)
+      tags:
+        - Video Categories
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          categories:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Category'
+
+  /video-categories/get-by-cat-id/{catId}:
+    get:
+      operationId: videoCategories.getByCategoryId
+      summary: Get category by ID
+      description: Retrieve category information and its subcategories
+      tags:
+        - Video Categories
+      security:
+        - bearer: []
+      parameters:
+        - name: catId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Category ID
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          categories:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Category'
+              examples:
+                error:
+                  value:
+                    status: false
+                    code: 405
+                    message: "دسته‌بندی یافت نشد."
+                    data: null
+
+  # ==================== ALL CATEGORIES ENDPOINT ====================
+  /all-categories:
+    get:
+      operationId: categories.allCategories
+      summary: Get all categories (books and videos)
+      description: Retrieve all categories including both book and video categories
+      tags:
+        - Categories
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          data:
+                            type: array
+                            items:
+                              type: object
+                              description: Category object with type indicator
+
+  # ==================== CART ENDPOINTS ====================
+  /cart:
+    get:
+      operationId: cart.index
+      summary: Get user cart
+      description: Retrieve the current user's shopping cart
+      tags:
+        - Cart
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          cart:
+                            $ref: '#/components/schemas/Cart'
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "سبد خرید با موفقیت دریافت شد."
+                    data:
+                      cart:
+                        id: 1
+                        items: []
+                        price: 0
+
+    post:
+      operationId: cart.store
+      summary: Add or remove item from cart
+      description: Add a book to cart or remove it from cart
+      tags:
+        - Cart
+      security:
+        - bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - operation
+                - book_id
+              properties:
+                operation:
+                  type: string
+                  enum: [add, remove]
+                  description: Operation to perform
+                  example: "add"
+                book_id:
+                  type: integer
+                  description: Book ID to add or remove
+                  example: 1
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          cart:
+                            $ref: '#/components/schemas/Cart'
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "عملیات با موفقیت انجام شد."
+                    data:
+                      cart:
+                        id: 1
+                        items: []
+                error:
+                  value:
+                    status: false
+                    code: 405
+                    message: "کتاب یافت نشد."
+                    data: null
+
+  # ==================== USER ENDPOINT ====================
+  /user:
+    get:
+      operationId: user.info
+      summary: Get current user information
+      description: Retrieve information about the authenticated user
+      tags:
+        - User
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "اطلاعات کاربر با موفقیت دریافت شد."
+                    data:
+                      user:
+                        id: 1
+                        username: "John Doe"
+                        phone_number: "09368373672"
+
+  # ==================== PAYMENT ENDPOINT ====================
+  /pay:
+    get:
+      operationId: payment.initiate
+      summary: Initiate payment
+      description: |
+        Create payment link for the current user's cart.
+        If cart is empty, returns error.
+        If cart is free (all items are free), returns success without payment link.
+        Otherwise, creates payment gateway link.
+      tags:
+        - Payment
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Response always returns HTTP 200. Check `code` field for result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        oneOf:
+                          - type: object
+                            properties:
+                              is_free:
+                                type: boolean
+                                description: Indicates cart is free
+                              cart:
+                                $ref: '#/components/schemas/Cart'
+                              message:
+                                type: string
+                            description: Response when cart is free
+                          - type: object
+                            properties:
+                              payment:
+                                $ref: '#/components/schemas/PaymentLink'
+                            description: Response with payment link
+              examples:
+                success:
+                  value:
+                    status: true
+                    code: 200
+                    message: "لینک پرداخت با موفقیت ایجاد شد."
+                    data:
+                      payment:
+                        link: "https://nextpay.org/nx/gateway/payment/123456"
+                        trans_id: "123456"
+                freeCart:
+                  value:
+                    status: true
+                    code: 200
+                    message: "سبد خرید رایگان است."
+                    data:
+                      is_free: true
+                      cart:
+                        id: 1
+                        price: 0
+                emptyCart:
+                  value:
+                    status: false
+                    code: 422
+                    message: "سبد خرید خالی است."
+                    data: null
+                error:
+                  value:
+                    status: false
+                    code: 500
+                    message: "خطا در ایجاد لینک پرداخت."
+                    data: null
+
+# ==================== ERROR CODES REFERENCE ====================
+# Common error codes used in responses:
+# 200  - Success
+# 401  - Authorization Error
+# 404  - Page Not Found
+# 405  - Model Not Found
+# 406  - Method Not Found
+# 407  - Route Not Found
+# 422  - Validation Fail
+# 500  - Server Error
+# 501  - Database Error
+# 701  - Authentication Error
+# 702  - Invalid Verification Code
+# 703  - User Is Disabled
+# 704  - Invalid API Token
+# 706  - Too Many Login Attempt
+# 707  - Invalid Username Password
+# 708  - Post Too Large
+# 709  - Guest Error
+# 960  - Agent Not Verified
+# 961  - Fail SMS Send
+# 962  - Too Many OTP Code Request
+# 980  - Invalid Mini App Auth
+# 982  - Mini App Mobile Validate Failed
+# 990  - Failed Profile Update
+# 1100 - Auth Login Error

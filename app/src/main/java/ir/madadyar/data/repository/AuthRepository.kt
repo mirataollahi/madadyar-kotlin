@@ -11,18 +11,22 @@ import java.io.IOException
 class AuthRepository {
     private val apiService = ApiClient.apiService
     
-    suspend fun register(username: String, phoneNumber: String): Result<String> {
+    suspend fun register(username: String, phoneNumber: String): Result<Pair<ir.madadyar.data.model.User, Int>> {
         return try {
             val response = apiService.register(RegisterRequest(username, phoneNumber))
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    val data = apiResponse.data!!
+                    Result.success(Pair(data.user, data.code))
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -30,18 +34,22 @@ class AuthRepository {
         }
     }
     
-    suspend fun login(phoneNumber: String): Result<String> {
+    suspend fun login(phoneNumber: String): Result<Pair<ir.madadyar.data.model.User, Int>> {
         return try {
             val response = apiService.login(LoginRequest(phoneNumber))
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    val data = apiResponse.data!!
+                    Result.success(Pair(data.user, data.code))
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -49,18 +57,22 @@ class AuthRepository {
         }
     }
     
-    suspend fun verifyRegister(phoneNumber: String, code: String): Result<String> {
+    suspend fun verifyRegister(phoneNumber: String, code: String): Result<Pair<ir.madadyar.data.model.User, String>> {
         return try {
             val response = apiService.verifyRegister(VerifyRequest(phoneNumber, code))
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    val data = apiResponse.data!!
+                    Result.success(Pair(data.user, data.token))
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -68,18 +80,22 @@ class AuthRepository {
         }
     }
     
-    suspend fun verifyLogin(phoneNumber: String, code: String): Result<String> {
+    suspend fun verifyLogin(phoneNumber: String, code: String): Result<Pair<ir.madadyar.data.model.User, String>> {
         return try {
             val response = apiService.verifyLogin(VerifyRequest(phoneNumber, code))
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    val data = apiResponse.data!!
+                    Result.success(Pair(data.user, data.token))
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {

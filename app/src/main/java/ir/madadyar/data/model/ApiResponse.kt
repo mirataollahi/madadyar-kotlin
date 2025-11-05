@@ -1,22 +1,53 @@
 package ir.madadyar.data.model
 
-data class BooksResponse(
+// Base API Response Structure
+data class ApiResponse<T>(
+    val status: Boolean,
+    val code: Int,
+    val message: String,
+    val data: T?
+)
+
+// ==================== AUTHENTICATION RESPONSES ====================
+data class LoginResponseData(
+    val user: User,
+    val code: Int
+)
+
+data class VerifyResponseData(
+    val user: User,
+    val token: String
+)
+
+// ==================== BOOK RESPONSES ====================
+data class BooksResponseData(
     val data: List<Book>,
     val totalPage: Int
 )
 
-data class VideoResponse(
+data class BookDetailResponseData(
+    val book: Book
+)
+
+// ==================== VIDEO RESPONSES ====================
+data class VideosResponseData(
     val data: List<Video>
 )
 
-data class BookDetailResponse(
-    val data: Book
+data class VideoDetailResponseData(
+    val video: Video
 )
 
-data class VideoDetailResponse(
-    val data: Video
+// ==================== CATEGORY RESPONSES ====================
+data class CategoriesResponseData(
+    val categories: List<BookCategory>
 )
 
+data class VideoCategoriesResponseData(
+    val categories: List<VideoCategory>
+)
+
+// ==================== REQUEST MODELS ====================
 data class LoginRequest(
     val phone_number: String
 )

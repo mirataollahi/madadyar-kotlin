@@ -14,14 +14,17 @@ class VideosRepository {
         return try {
             val response = apiService.getVideos()
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    Result.success(apiResponse.data!!.data)
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -33,14 +36,17 @@ class VideosRepository {
         return try {
             val response = apiService.getVideoById(id)
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!.data)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    Result.success(apiResponse.data!!.video)
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -52,14 +58,17 @@ class VideosRepository {
         return try {
             val response = apiService.getVideosByCategory(catId)
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    Result.success(apiResponse.data!!.data)
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -71,14 +80,17 @@ class VideosRepository {
         return try {
             val response = apiService.searchVideos(query)
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    Result.success(apiResponse.data!!.data)
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -90,14 +102,17 @@ class VideosRepository {
         return try {
             val response = apiService.getVideoCategories()
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    Result.success(apiResponse.data!!.categories)
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {
@@ -109,14 +124,17 @@ class VideosRepository {
         return try {
             val response = apiService.getVideoCategoriesByParent(catId)
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val apiResponse = response.body()!!
+                if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
+                    Result.success(apiResponse.data!!.categories)
+                } else {
+                    Result.failure(Exception(apiResponse.message))
+                }
             } else {
-                val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(response.code())
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("خطا در ارتباط با سرور"))
             }
         } catch (e: HttpException) {
-            val errorMsg = ErrorHandler.getErrorMessageFromStatusCode(e.code())
-            Result.failure(Exception(errorMsg))
+            Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: IOException) {
             Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
         } catch (e: Exception) {

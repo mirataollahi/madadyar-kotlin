@@ -45,7 +45,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             
             val result = authRepository.register(username, phoneNumber)
             result.fold(
-                onSuccess = {
+                onSuccess = { (user, verificationCode) ->
+                    // Store user and verification code if needed
                     _registerSuccess.value = phoneNumber
                     _isLoading.value = false
                 },
@@ -64,7 +65,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             
             val result = authRepository.login(phoneNumber)
             result.fold(
-                onSuccess = {
+                onSuccess = { (user, verificationCode) ->
+                    // Store user and verification code if needed
                     _loginSuccess.value = phoneNumber
                     _isLoading.value = false
                 },
@@ -83,7 +85,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             
             val result = authRepository.verifyRegister(phoneNumber, code)
             result.fold(
-                onSuccess = { token ->
+                onSuccess = { (user, token) ->
                     AuthManager.saveToken(getApplication(), token)
                     _isAuthenticated.value = true
                     _isLoading.value = false
@@ -103,7 +105,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             
             val result = authRepository.verifyLogin(phoneNumber, code)
             result.fold(
-                onSuccess = { token ->
+                onSuccess = { (user, token) ->
                     AuthManager.saveToken(getApplication(), token)
                     _isAuthenticated.value = true
                     _isLoading.value = false
