@@ -17,8 +17,12 @@ class AuthRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    val data = apiResponse.data!!
-                    Result.success(Pair(data.user, data.code))
+                    try {
+                        val data = apiResponse.data!!
+                        Result.success(Pair(data.user, data.code))
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -40,8 +44,12 @@ class AuthRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    val data = apiResponse.data!!
-                    Result.success(Pair(data.user, data.code))
+                    try {
+                        val data = apiResponse.data!!
+                        Result.success(Pair(data.user, data.code))
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -63,8 +71,12 @@ class AuthRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    val data = apiResponse.data!!
-                    Result.success(Pair(data.user, data.token))
+                    try {
+                        val data = apiResponse.data!!
+                        Result.success(Pair(data.user, data.token))
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -86,8 +98,12 @@ class AuthRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    val data = apiResponse.data!!
-                    Result.success(Pair(data.user, data.token))
+                    try {
+                        val data = apiResponse.data!!
+                        Result.success(Pair(data.user, data.token))
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }

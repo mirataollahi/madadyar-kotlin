@@ -16,9 +16,18 @@ class VideosRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    val videosData = apiResponse.data!!
-                    val paginatedVideos = videosData.videos
-                    Result.success(paginatedVideos.data)
+                    try {
+                        val videosData = apiResponse.data!!
+                        val paginatedVideos = videosData.videos
+                        if (paginatedVideos != null) {
+                            val videosList = paginatedVideos.data ?: emptyList()
+                            Result.success(videosList)
+                        } else {
+                            Result.failure(Exception("ساختار پاسخ سرور نامعتبر است"))
+                        }
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -40,7 +49,16 @@ class VideosRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    Result.success(apiResponse.data!!.video)
+                    try {
+                        val video = apiResponse.data!!.video
+                        if (video != null) {
+                            Result.success(video)
+                        } else {
+                            Result.failure(Exception("اطلاعات ویدیو یافت نشد"))
+                        }
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -62,8 +80,12 @@ class VideosRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    val videosData = apiResponse.data!!
-                    Result.success(videosData.data)
+                    try {
+                        val videosData = apiResponse.data!!
+                        Result.success(videosData.data ?: emptyList())
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -85,8 +107,12 @@ class VideosRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    val videosData = apiResponse.data!!
-                    Result.success(videosData.data)
+                    try {
+                        val videosData = apiResponse.data!!
+                        Result.success(videosData.data ?: emptyList())
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -108,7 +134,11 @@ class VideosRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    Result.success(apiResponse.data!!.categories)
+                    try {
+                        Result.success(apiResponse.data!!.categories ?: emptyList())
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -130,7 +160,11 @@ class VideosRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    Result.success(apiResponse.data!!.categories)
+                    try {
+                        Result.success(apiResponse.data!!.categories ?: emptyList())
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }

@@ -3,6 +3,7 @@ package ir.madadyar.util
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import com.google.gson.JsonSyntaxException
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -22,8 +23,14 @@ object ErrorHandler {
             is UnknownHostException, is SocketTimeoutException -> {
                 "اتصال به اینترنت برقرار نیست. لطفا اتصال خود را بررسی کنید."
             }
+            is JsonSyntaxException, is IllegalStateException, is ClassCastException -> {
+                "خطا در ساختار پاسخ سرور. لطفا دوباره تلاش کنید."
+            }
             is IOException -> {
                 "خطا در ارتباط با سرور. لطفا دوباره تلاش کنید."
+            }
+            is NullPointerException -> {
+                "خطا در پردازش اطلاعات دریافتی. لطفا دوباره تلاش کنید."
             }
             is Exception -> {
                 exception.message ?: "خطایی رخ داده است. لطفا دوباره تلاش کنید."

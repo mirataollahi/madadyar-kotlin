@@ -23,66 +23,69 @@ data class VerifyResponseData(
 data class PaginationLink(
     val url: String?,
     val label: String,
-    val active: Boolean
+    val active: Boolean? = false
 )
 
 data class PaginatedBooks(
-    val current_page: Int,
-    val from: Int,
-    val last_page: Int,
-    val per_page: Int,
-    val to: Int,
-    val total: Int,
-    val first_page_url: String,
-    val last_page_url: String,
-    val next_page_url: String?,
-    val prev_page_url: String?,
-    val path: String,
-    val links: List<PaginationLink>,
-    val data: List<Book>
-)
+    val current_page: Int? = null,
+    val from: Int? = null,
+    val last_page: Int? = null,
+    val per_page: Int? = null,
+    val to: Int? = null,
+    val total: Int? = null,
+    val first_page_url: String? = null,
+    val last_page_url: String? = null,
+    val next_page_url: String? = null,
+    val prev_page_url: String? = null,
+    val path: String? = null,
+    val links: List<PaginationLink>? = null,
+    val data: List<Book>? = null
+) {
+    // Helper to get last_page safely
+    fun getLastPage(): Int = last_page ?: 1
+}
 
 data class PaginatedVideos(
-    val current_page: Int,
-    val from: Int,
-    val last_page: Int,
-    val per_page: Int,
-    val to: Int,
-    val total: Int,
-    val first_page_url: String,
-    val last_page_url: String,
-    val next_page_url: String?,
-    val prev_page_url: String?,
-    val path: String,
-    val links: List<PaginationLink>,
-    val data: List<Video>
+    val current_page: Int? = null,
+    val from: Int? = null,
+    val last_page: Int? = null,
+    val per_page: Int? = null,
+    val to: Int? = null,
+    val total: Int? = null,
+    val first_page_url: String? = null,
+    val last_page_url: String? = null,
+    val next_page_url: String? = null,
+    val prev_page_url: String? = null,
+    val path: String? = null,
+    val links: List<PaginationLink>? = null,
+    val data: List<Video>? = null
 )
 
 // ==================== BOOK RESPONSES ====================
 data class BooksResponseData(
-    val books: PaginatedBooks
+    val books: PaginatedBooks? = null
 )
 
 data class BooksListResponseData(
-    val data: List<Book>,
-    val totalPage: Int
+    val data: List<Book>? = null,
+    val totalPage: Int? = null
 )
 
 data class BookDetailResponseData(
-    val book: Book
+    val book: Book? = null
 )
 
 // ==================== VIDEO RESPONSES ====================
 data class VideosResponseData(
-    val videos: PaginatedVideos
+    val videos: PaginatedVideos? = null
 )
 
 data class VideosListResponseData(
-    val data: List<Video>
+    val data: List<Video>? = null
 )
 
 data class VideoDetailResponseData(
-    val video: Video
+    val video: Video? = null
 )
 
 // ==================== CATEGORY RESPONSES ====================

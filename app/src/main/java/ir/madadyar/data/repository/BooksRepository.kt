@@ -16,9 +16,19 @@ class BooksRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    val booksData = apiResponse.data!!
-                    val paginatedBooks = booksData.books
-                    Result.success(Pair(paginatedBooks.data, paginatedBooks.last_page))
+                    try {
+                        val booksData = apiResponse.data!!
+                        val paginatedBooks = booksData.books
+                        if (paginatedBooks != null) {
+                            val booksList = paginatedBooks.data ?: emptyList()
+                            val lastPage = paginatedBooks.getLastPage()
+                            Result.success(Pair(booksList, lastPage))
+                        } else {
+                            Result.failure(Exception("ساختار پاسخ سرور نامعتبر است"))
+                        }
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -40,7 +50,16 @@ class BooksRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    Result.success(apiResponse.data!!.book)
+                    try {
+                        val book = apiResponse.data!!.book
+                        if (book != null) {
+                            Result.success(book)
+                        } else {
+                            Result.failure(Exception("اطلاعات کتاب یافت نشد"))
+                        }
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -62,8 +81,12 @@ class BooksRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    val booksData = apiResponse.data!!
-                    Result.success(Pair(booksData.data, booksData.totalPage))
+                    try {
+                        val booksData = apiResponse.data!!
+                        Result.success(Pair(booksData.data ?: emptyList(), booksData.totalPage ?: 1))
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -85,8 +108,12 @@ class BooksRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    val booksData = apiResponse.data!!
-                    Result.success(Pair(booksData.data, booksData.totalPage))
+                    try {
+                        val booksData = apiResponse.data!!
+                        Result.success(Pair(booksData.data ?: emptyList(), booksData.totalPage ?: 1))
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -108,7 +135,11 @@ class BooksRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    Result.success(apiResponse.data!!.categories)
+                    try {
+                        Result.success(apiResponse.data!!.categories ?: emptyList())
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -130,7 +161,11 @@ class BooksRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    Result.success(apiResponse.data!!.categories)
+                    try {
+                        Result.success(apiResponse.data!!.categories ?: emptyList())
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -152,7 +187,11 @@ class BooksRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    Result.success(apiResponse.data!!.categories)
+                    try {
+                        Result.success(apiResponse.data!!.categories ?: emptyList())
+                    } catch (e: Exception) {
+                        Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
+                    }
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
