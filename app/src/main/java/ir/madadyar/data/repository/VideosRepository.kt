@@ -10,13 +10,15 @@ import java.io.IOException
 class VideosRepository {
     private val apiService = ApiClient.apiService
     
-    suspend fun getVideos(): Result<List<Video>> {
+    suspend fun getVideos(page: Int = 1): Result<List<Video>> {
         return try {
-            val response = apiService.getVideos()
+            val response = apiService.getVideos(page)
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    Result.success(apiResponse.data!!.data)
+                    val videosData = apiResponse.data!!
+                    val paginatedVideos = videosData.videos
+                    Result.success(paginatedVideos.data)
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -60,7 +62,8 @@ class VideosRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    Result.success(apiResponse.data!!.data)
+                    val videosData = apiResponse.data!!
+                    Result.success(videosData.data)
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
@@ -82,7 +85,8 @@ class VideosRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
-                    Result.success(apiResponse.data!!.data)
+                    val videosData = apiResponse.data!!
+                    Result.success(videosData.data)
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }

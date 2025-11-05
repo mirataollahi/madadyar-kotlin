@@ -15,8 +15,8 @@ components:
     bearer:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
+      bearerFormat: Token
+      description: "Laravel Sanctum Bearer Token authentication. Send token in Authorization header. Example: 'Bearer {token}'. Token is obtained from /auth/verify-login or /auth/verify-register endpoints."
 
   schemas:
     BaseResponse:
@@ -83,39 +83,114 @@ components:
       properties:
         id:
           type: integer
-        title:
+          example: 1
+        name:
           type: string
+          description: Book name/title
+          example: "رمان هری پاتر و سنگ جادو"
         description:
           type: string
+          description: Book description (may contain HTML)
+          example: "<p>Book description with HTML formatting...</p>"
+        file:
+          type: string
+          description: Path to book file (PDF)
+          example: "/storage/files/J.K. Rowling - H.P00-Prequel.pdf"
+        book_category_id:
+          type: integer
+          description: Foreign key to book category
+          example: 1
+        image:
+          type: string
+          description: Path to book cover image
+          example: "/storage/photos/9781408855652.jpg"
         price:
           type: number
+          description: Book price
+          example: 544000
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Soft delete timestamp (null if not deleted)
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: "2025-11-04T23:15:43.000000Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2025-11-04T23:15:43.000000Z"
         category:
-          type: object
-        ispurchased:
-          type: boolean
+          $ref: '#/components/schemas/Category'
+          description: Book category object (loaded via relationship)
 
     Video:
       type: object
       properties:
         id:
           type: integer
-        title:
+          example: 1
+        name:
           type: string
+          description: Video name/title
+          example: "ویدیو آموزشی"
         description:
           type: string
+          description: Video description (may contain HTML)
+          nullable: true
+        video_category_id:
+          type: integer
+          description: Foreign key to video category
+          nullable: true
+        file:
+          type: string
+          nullable: true
+          description: Path to video file
+        image:
+          type: string
+          nullable: true
+          description: Path to video thumbnail image
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Soft delete timestamp (null if not deleted)
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
         category:
-          type: object
+          $ref: '#/components/schemas/Category'
+          description: Video category object (loaded via relationship)
+          nullable: true
 
     Category:
       type: object
       properties:
         id:
           type: integer
-        name:
-          type: string
+          example: 1
         parent_id:
           type: integer
           nullable: true
+          description: Parent category ID (null for main categories)
+          example: null
+        name:
+          type: string
+          description: Category name
+          example: "رمان علمی تخیلی"
+        image:
+          type: string
+          nullable: true
+          description: Path to category image
+          example: "/storage/photos/9781408855713.jpg"
 
     Cart:
       type: object
@@ -139,6 +214,91 @@ components:
           description: Payment gateway URL
         trans_id:
           type: string
+
+    PaginationMeta:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          example: 1
+          description: Current page number
+        from:
+          type: integer
+          example: 1
+          description: First item number on current page
+        last_page:
+          type: integer
+          example: 10
+          description: Last page number
+        per_page:
+          type: integer
+          example: 15
+          description: Number of items per page
+        to:
+          type: integer
+          example: 15
+          description: Last item number on current page
+        total:
+          type: integer
+          example: 150
+          description: Total number of items
+        first_page_url:
+          type: string
+          description: URL to first page
+        last_page_url:
+          type: string
+          description: URL to last page
+        next_page_url:
+          type: string
+          nullable: true
+          description: URL to next page (null if on last page)
+        prev_page_url:
+          type: string
+          nullable: true
+          description: URL to previous page (null if on first page)
+        path:
+          type: string
+          description: Base path for pagination URLs
+        links:
+          type: array
+          description: Array of pagination links
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+                nullable: true
+                description: URL for this page (null for Previous/Next labels)
+              label:
+                type: string
+                description: Label for the link (e.g., "1", "2", "&laquo; قبلی", "بعدی &raquo;")
+                active:
+
+    PaginatedBooks:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMeta'
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              type: array
+              description: Array of book items
+              items:
+                $ref: '#/components/schemas/Book'
+
+    PaginatedVideos:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMeta'
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              type: array
+              description: Array of video items
+              items:
+                $ref: '#/components/schemas/Video'
 
 paths:
   # ==================== AUTHENTICATION ENDPOINTS ====================
@@ -404,7 +564,7 @@ paths:
     get:
       operationId: books.index
       summary: Get all books
-      description: Retrieve a paginated list of all books
+      description: Retrieve a paginated list of all books. Pagination metadata is automatically included in the response.
       tags:
         - Books
       security:
@@ -429,25 +589,53 @@ paths:
                       data:
                         type: object
                         properties:
-                          data:
-                            type: array
-                            items:
-                              $ref: '#/components/schemas/Book'
-                          totalPage:
-                            type: integer
-                            description: Total number of pages
+                          books:
+                            $ref: '#/components/schemas/PaginatedBooks'
               examples:
                 success:
                   value:
                     status: true
                     code: 200
-                    message: "اطلاعات با موفقیت دریافت شد."
+                    message: "با موفقیت انجام شد"
                     data:
-                      data:
-                        - id: 1
-                          title: "Book Title"
-                          price: 100000
-                      totalPage: 10
+                      books:
+                        current_page: 1
+                        data:
+                          - id: 1
+                            name: "رمان هری پاتر و سنگ جادو"
+                            description: "<p><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: arial, helvetica, sans-serif; font-size: medium;\">هری پاتر&nbsp;نام مجموعه‌ای هفت‌گانه از</span><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: inherit; font-size: medium;\"><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: arial, helvetica, sans-serif; font-size: inherit;\">&nbsp;</span><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: arial, helvetica, sans-serif; font-size: inherit;\">رمان های</span></span><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: inherit; font-size: medium;\"><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: arial, helvetica, sans-serif; font-size: inherit;\">&nbsp;سبک خیا</span></span><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: inherit; font-size: medium;\"><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: arial, helvetica, sans-serif; font-size: inherit;\">ل پردازی</span></span><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: inherit; font-size: medium;\"><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: arial, helvetica, sans-serif; font-size: inherit;\">&nbsp;است که توسط نویسنده انگلیسی،جوآن کتلین رولینگ</span></span><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: inherit; font-size: medium;\"><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: arial, helvetica, sans-serif; font-size: inherit;\">&nbsp;نوشته شده‌است.&nbsp;</span></span><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: inherit; font-size: medium;\"><span style=\"margin: 0px auto; padding: 0px; max-width: 100%; font-family: arial, helvetica, sans-serif; font-size: inherit;\">&nbsp;از آنجا که اولین رمان در تاریخ ۳۰ ژوئن ۱۹۹۷ با عنوان هری پاتر و سنگ جادو منتشر شد، کتاب محبوبیت بسیار زیاد، تحسین فراوان و موفقیت تجاری را در جهان کسب کرد.تا ژوئن ۲۰۱۱، کتاب ها درحدود ۴۵۰میلیون نسخه فروش داشته و به ۶۷ زبان دنیا ترجمه شده است. و چهار کتاب پایانی این مجموعه به طور متوالی رکورد فروش سریعترین کتاب های جهان را دارد.هری پاتر یک مجموعه با چندین ژانر، ازجمله فانتزی، گذرعمر(با عناصری از رمزآلود، هیجان انگیز، ماجراجویی، و عاشقانه )، که دارای بسیاری از معانی فرهنگی و این ارجاعات می باشد.با این حال براساس گفته رولینگ، موضوع اصلی داستان مرگ است.داستان پیرامون کودک یتیم یازده ساله ای به نام هری پاتر که یک جادوگر است می باشد</span></span></p>"
+                            file: "/storage/files/J.K. Rowling - H.P00-Prequel.pdf"
+                            book_category_id: 1
+                            image: "/storage/photos/9781408855652.jpg"
+                            price: 544000
+                            deleted_at: null
+                            created_at: "2025-11-04T23:15:43.000000Z"
+                            updated_at: "2025-11-04T23:15:43.000000Z"
+                            category:
+                              id: 1
+                              parent_id: null
+                              name: "رمان علمی تخیلی"
+                              image: "/storage/photos/9781408855713.jpg"
+                        first_page_url: "http://192.168.88.66:8000/api/v1/books?page=1"
+                        from: 1
+                        last_page: 1
+                        last_page_url: "http://192.168.88.66:8000/api/v1/books?page=1"
+                        links:
+                          - url: null
+                            label: "&laquo; قبلی"
+                            active: false
+                          - url: "http://192.168.88.66:8000/api/v1/books?page=1"
+                            label: "1"
+                            active: true
+                          - url: null
+                            label: "بعدی &raquo;"
+                            active: false
+                        next_page_url: null
+                        path: "http://192.168.88.66:8000/api/v1/books"
+                        per_page: 7
+                        prev_page_url: null
+                        to: 1
+                        total: 1
 
     # Note: POST, PUT, DELETE are not implemented in controller
 
@@ -487,12 +675,24 @@ paths:
                   value:
                     status: true
                     code: 200
-                    message: "اطلاعات با موفقیت دریافت شد."
+                    message: "با موفقیت انجام شد"
                     data:
                       book:
                         id: 1
-                        title: "Book Title"
-                        ispurchased: false
+                        name: "رمان هری پاتر و سنگ جادو"
+                        description: "<p>توضیحات کتاب...</p>"
+                        file: "/storage/files/J.K. Rowling - H.P00-Prequel.pdf"
+                        book_category_id: 1
+                        image: "/storage/photos/9781408855652.jpg"
+                        price: 544000
+                        deleted_at: null
+                        created_at: "2025-11-04T23:15:43.000000Z"
+                        updated_at: "2025-11-04T23:15:43.000000Z"
+                        category:
+                          id: 1
+                          parent_id: null
+                          name: "رمان علمی تخیلی"
+                          image: "/storage/photos/9781408855713.jpg"
                 error:
                   value:
                     status: false
@@ -648,11 +848,18 @@ paths:
     get:
       operationId: videos.index
       summary: Get all videos
-      description: Retrieve a list of all videos
+      description: Retrieve a paginated list of all videos. Pagination metadata is automatically included in the response.
       tags:
         - Videos
       security:
         - bearer: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
       responses:
         '200':
           description: Response always returns HTTP 200. Check `code` field for result.
@@ -666,25 +873,55 @@ paths:
                       data:
                         type: object
                         properties:
-                          data:
-                            type: array
-                            items:
-                              $ref: '#/components/schemas/Video'
+                          videos:
+                            $ref: '#/components/schemas/PaginatedVideos'
               examples:
                 success:
                   value:
                     status: true
                     code: 200
-                    message: "اطلاعات با موفقیت دریافت شد."
+                    message: "با موفقیت انجام شد"
                     data:
-                      data: []
-                empty:
-                  value:
-                    status: true
-                    code: 200
-                    message: "اطلاعاتی یافت نشد."
-                    data:
-                      data: []
+                      videos:
+                        current_page: 1
+                        data:
+                          - id: 1
+                            name: "ویدیو آموزشی برنامه نویسی"
+                            description: "<p>توضیحات ویدیو آموزشی</p>"
+                            video_category_id: 1
+                            file: "/storage/videos/programming-tutorial.mp4"
+                            image: "/storage/photos/video-thumbnail.jpg"
+                            deleted_at: null
+                            created_at: "2025-11-04T23:15:43.000000Z"
+                            updated_at: "2025-11-04T23:15:43.000000Z"
+                            category:
+                              id: 1
+                              parent_id: null
+                              name: "آموزشی"
+                              image: "/storage/photos/category-image.jpg"
+                        first_page_url: "http://192.168.88.66:8000/api/v1/videos?page=1"
+                        from: 1
+                        last_page: 5
+                        last_page_url: "http://192.168.88.66:8000/api/v1/videos?page=5"
+                        links:
+                          - url: null
+                            label: "&laquo; قبلی"
+                            active: false
+                          - url: "http://192.168.88.66:8000/api/v1/videos?page=1"
+                            label: "1"
+                            active: true
+                          - url: "http://192.168.88.66:8000/api/v1/videos?page=2"
+                            label: "2"
+                            active: false
+                          - url: null
+                            label: "بعدی &raquo;"
+                            active: false
+                        next_page_url: "http://192.168.88.66:8000/api/v1/videos?page=2"
+                        path: "http://192.168.88.66:8000/api/v1/videos"
+                        per_page: 15
+                        prev_page_url: null
+                        to: 15
+                        total: 75
 
   /videos/{id}:
     get:
@@ -722,11 +959,23 @@ paths:
                   value:
                     status: true
                     code: 200
-                    message: "اطلاعات با موفقیت دریافت شد."
+                    message: "با موفقیت انجام شد"
                     data:
                       video:
                         id: 1
-                        title: "Video Title"
+                        name: "ویدیو آموزشی برنامه نویسی"
+                        description: "<p>توضیحات ویدیو آموزشی</p>"
+                        video_category_id: 1
+                        file: "/storage/videos/programming-tutorial.mp4"
+                        image: "/storage/photos/video-thumbnail.jpg"
+                        deleted_at: null
+                        created_at: "2025-11-04T23:15:43.000000Z"
+                        updated_at: "2025-11-04T23:15:43.000000Z"
+                        category:
+                          id: 1
+                          parent_id: null
+                          name: "آموزشی"
+                          image: "/storage/photos/category-image.jpg"
                 error:
                   value:
                     status: false
@@ -1265,3 +1514,4 @@ paths:
 # 982  - Mini App Mobile Validate Failed
 # 990  - Failed Profile Update
 # 1100 - Auth Login Error
+

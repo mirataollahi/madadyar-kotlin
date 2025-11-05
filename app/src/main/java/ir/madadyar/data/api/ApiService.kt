@@ -30,26 +30,26 @@ interface ApiService {
     suspend fun getBooksByCategory(
         @Path("catId") catId: Int,
         @Query("page") page: Int
-    ): Response<ApiResponse<BooksResponseData>>
+    ): Response<ApiResponse<BooksListResponseData>>
     
     @GET("books/search/{q}")
     suspend fun searchBooks(
         @Path("q") query: String,
         @Query("page") page: Int
-    ): Response<ApiResponse<BooksResponseData>>
+    ): Response<ApiResponse<BooksListResponseData>>
     
     // ==================== VIDEO ENDPOINTS ====================
     @GET("videos")
-    suspend fun getVideos(): Response<ApiResponse<VideosResponseData>>
+    suspend fun getVideos(@Query("page") page: Int): Response<ApiResponse<VideosResponseData>>
     
     @GET("videos/{id}")
     suspend fun getVideoById(@Path("id") id: Int): Response<ApiResponse<VideoDetailResponseData>>
     
     @GET("videos/get-by-cat-id/{catId}")
-    suspend fun getVideosByCategory(@Path("catId") catId: Int): Response<ApiResponse<VideosResponseData>>
+    suspend fun getVideosByCategory(@Path("catId") catId: Int): Response<ApiResponse<VideosListResponseData>>
     
     @GET("videos/search/{q}")
-    suspend fun searchVideos(@Path("q") query: String): Response<ApiResponse<VideosResponseData>>
+    suspend fun searchVideos(@Path("q") query: String): Response<ApiResponse<VideosListResponseData>>
     
     // ==================== BOOK CATEGORY ENDPOINTS ====================
     @GET("book-categories")

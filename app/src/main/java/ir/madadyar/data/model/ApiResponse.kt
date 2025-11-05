@@ -19,8 +19,51 @@ data class VerifyResponseData(
     val token: String
 )
 
+// ==================== PAGINATION MODELS ====================
+data class PaginationLink(
+    val url: String?,
+    val label: String,
+    val active: Boolean
+)
+
+data class PaginatedBooks(
+    val current_page: Int,
+    val from: Int,
+    val last_page: Int,
+    val per_page: Int,
+    val to: Int,
+    val total: Int,
+    val first_page_url: String,
+    val last_page_url: String,
+    val next_page_url: String?,
+    val prev_page_url: String?,
+    val path: String,
+    val links: List<PaginationLink>,
+    val data: List<Book>
+)
+
+data class PaginatedVideos(
+    val current_page: Int,
+    val from: Int,
+    val last_page: Int,
+    val per_page: Int,
+    val to: Int,
+    val total: Int,
+    val first_page_url: String,
+    val last_page_url: String,
+    val next_page_url: String?,
+    val prev_page_url: String?,
+    val path: String,
+    val links: List<PaginationLink>,
+    val data: List<Video>
+)
+
 // ==================== BOOK RESPONSES ====================
 data class BooksResponseData(
+    val books: PaginatedBooks
+)
+
+data class BooksListResponseData(
     val data: List<Book>,
     val totalPage: Int
 )
@@ -31,6 +74,10 @@ data class BookDetailResponseData(
 
 // ==================== VIDEO RESPONSES ====================
 data class VideosResponseData(
+    val videos: PaginatedVideos
+)
+
+data class VideosListResponseData(
     val data: List<Video>
 )
 

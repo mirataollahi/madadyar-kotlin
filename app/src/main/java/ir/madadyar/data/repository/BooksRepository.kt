@@ -17,7 +17,8 @@ class BooksRepository {
                 val apiResponse = response.body()!!
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
                     val booksData = apiResponse.data!!
-                    Result.success(Pair(booksData.data, booksData.totalPage))
+                    val paginatedBooks = booksData.books
+                    Result.success(Pair(paginatedBooks.data, paginatedBooks.last_page))
                 } else {
                     Result.failure(Exception(apiResponse.message))
                 }
