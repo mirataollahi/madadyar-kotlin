@@ -21,6 +21,11 @@ object ApiClient {
         val original = chain.request()
         val requestBuilder = original.newBuilder()
             .header("Accept", "application/json")
+            .header("Content-Type", "application/json")
+        
+        // Log the URL being called
+        android.util.Log.d("ApiClient", "Request URL: ${original.url}")
+        android.util.Log.d("ApiClient", "Request Method: ${original.method}")
         
         token?.let {
             requestBuilder.header("Authorization", it)
@@ -29,7 +34,11 @@ object ApiClient {
         chain.proceed(requestBuilder.build())
     }
     
-    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+    private val loggingInterceptor = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
+        override fun log(message: String) {
+            android.util.Log.d("ApiClient", message)
+        }
+    }).apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
     
