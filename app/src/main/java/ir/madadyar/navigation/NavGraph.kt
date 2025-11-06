@@ -154,7 +154,13 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
         }
         
         composable("books_list") {
-            Text("Books List")
+            BooksListScreen(
+                initialCategoryId = null,
+                onBack = { navController.popBackStack() },
+                onNavigateToBookDetail = { id ->
+                    navController.navigate(Screen.BookDetail.createRoute(id))
+                }
+            )
         }
         
         composable(
@@ -166,11 +172,23 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
             )
         ) { backStackEntry ->
             val categoryId = backStackEntry.arguments?.getInt("categoryId")
-            Text("Books List - Category: $categoryId")
+            BooksListScreen(
+                initialCategoryId = categoryId,
+                onBack = { navController.popBackStack() },
+                onNavigateToBookDetail = { id ->
+                    navController.navigate(Screen.BookDetail.createRoute(id))
+                }
+            )
         }
         
         composable("videos_list") {
-            Text("Videos List")
+            VideosListScreen(
+                initialCategoryId = null,
+                onBack = { navController.popBackStack() },
+                onNavigateToVideoDetail = { id ->
+                    navController.navigate(Screen.VideoDetail.createRoute(id))
+                }
+            )
         }
         
         composable(
@@ -182,7 +200,13 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
             )
         ) { backStackEntry ->
             val categoryId = backStackEntry.arguments?.getInt("categoryId")
-            Text("Videos List - Category: $categoryId")
+            VideosListScreen(
+                initialCategoryId = categoryId,
+                onBack = { navController.popBackStack() },
+                onNavigateToVideoDetail = { id ->
+                    navController.navigate(Screen.VideoDetail.createRoute(id))
+                }
+            )
         }
         
         composable(
