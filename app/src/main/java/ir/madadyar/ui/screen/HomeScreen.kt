@@ -94,32 +94,6 @@ fun HomeScreen(
     
     
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    if (bookCategories.isNotEmpty()) {
-                        Text(
-                            text = bookCategories[selectedIndex].name,
-                            fontFamily = iransansFontFamily,
-                            fontWeight = FontWeight.Black,
-                            fontSize = 20.sp,
-                            color = White
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /* Search */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search", tint = White)
-                    }
-                    IconButton(onClick = onOpenDrawer) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu", tint = White)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkSurface
-                )
-            )
-        },
         containerColor = DarkBackground
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize()) {

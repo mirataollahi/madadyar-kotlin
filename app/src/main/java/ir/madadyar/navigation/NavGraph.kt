@@ -1,11 +1,13 @@
 package ir.madadyar.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.padding
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.compose.material3.Text
 import ir.madadyar.ui.screen.*
+import ir.madadyar.ui.component.AppScaffold
 
 sealed class Screen(val route: String) {
     object Landing : Screen("landing")
@@ -49,10 +51,16 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun NavGraph(navController: NavHostController, startDestination: String) {
-    NavHost(
+    AppScaffold(
         navController = navController,
-        startDestination = startDestination
-    ) {
+        onClickProfile = { /* TODO: navigate to profile when available */ },
+        onClickSearch = { navController.navigate("search") }
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            modifier = androidx.compose.ui.Modifier.padding(paddingValues)
+        ) {
         composable(Screen.Landing.route) {
             LandingScreen(
                 onNavigateAway = {
@@ -233,13 +241,13 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
             VideoDetailScreen(videoId = videoId, onBack = { navController.popBackStack() })
         }
         
-        composable(Screen.About.route) {
-            Text("About")
+        composable("search") {
+            SearchScreen(
+                onOpenBook = { id -> navController.navigate(Screen.BookDetail.createRoute(id)) },
+                onOpenVideo = { id -> navController.navigate(Screen.VideoDetail.createRoute(id)) }
+            )
         }
-        
-        composable(Screen.Contact.route) {
-            Text("Contact")
-        }
+    }
     }
 }
 
