@@ -58,9 +58,14 @@ fun AppScaffold(
             )
         },
         bottomBar = {
+            Surface(
+                color = androidx.compose.ui.graphics.Color.Transparent,
+                shadowElevation = 8.dp,
+                modifier = androidx.compose.ui.Modifier.padding(top = 4.dp)
+            ) {
             NavigationBar(
                 containerColor = DarkSurface,
-                modifier = androidx.compose.ui.Modifier.height(56.dp)
+                modifier = androidx.compose.ui.Modifier.height(58.dp)
             ) {
                 items.forEach { item ->
                     val selected = currentDestination.isRouteInHierarchy(item.route)
@@ -72,25 +77,26 @@ fun AppScaffold(
                                 launchSingleTop = true
                             }
                         },
-                        label = { },
+                        label = { Text(item.label, fontFamily = iransansFontFamily, fontSize = 9.sp, fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal, color = if (selected) Yellow else White.copy(alpha = 0.8f)) },
                         icon = {
                             Icon(
                                 item.icon,
                                 contentDescription = item.label,
-                                tint = if (selected) Yellow else White,
-                                modifier = androidx.compose.ui.Modifier.size(22.dp)
+                                tint = if (selected) Yellow else White.copy(alpha = 0.9f),
+                                modifier = androidx.compose.ui.Modifier.size(18.dp)
                             )
                         },
-                        alwaysShowLabel = false,
+                        alwaysShowLabel = true,
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = Yellow,
-                            unselectedIconColor = White,
+                            unselectedIconColor = White.copy(alpha = 0.9f),
                             selectedTextColor = Yellow,
-                            unselectedTextColor = White,
-                            indicatorColor = androidx.compose.ui.graphics.Color.Transparent
+                            unselectedTextColor = White.copy(alpha = 0.8f),
+                            indicatorColor = Yellow.copy(alpha = 0.15f)
                         )
                     )
                 }
+            }
             }
         },
         containerColor = DarkBackground
