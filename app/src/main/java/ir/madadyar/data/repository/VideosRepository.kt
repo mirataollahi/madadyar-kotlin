@@ -18,13 +18,8 @@ class VideosRepository {
                 if (apiResponse.code == 200 && apiResponse.status && apiResponse.data != null) {
                     try {
                         val videosData = apiResponse.data!!
-                        val paginatedVideos = videosData.videos
-                        if (paginatedVideos != null) {
-                            val videosList = paginatedVideos.data ?: emptyList()
-                            Result.success(videosList)
-                        } else {
-                            Result.failure(Exception("ساختار پاسخ سرور نامعتبر است"))
-                        }
+                        val videosList = videosData.videos ?: emptyList()
+                        Result.success(videosList)
                     } catch (e: Exception) {
                         Result.failure(Exception(ErrorHandler.getErrorMessage(e)))
                     }

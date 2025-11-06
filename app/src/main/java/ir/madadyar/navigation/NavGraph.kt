@@ -194,7 +194,7 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
             )
         ) { backStackEntry ->
             val bookId = backStackEntry.arguments?.getInt("bookId") ?: 0
-            Text("Book Detail - ID: $bookId")
+            BookDetailScreen(bookId = bookId, onBack = { navController.popBackStack() })
         }
         
         composable(
@@ -206,7 +206,7 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
             )
         ) { backStackEntry ->
             val videoId = backStackEntry.arguments?.getInt("videoId") ?: 0
-            Text("Video Detail - ID: $videoId")
+            VideoDetailScreen(videoId = videoId, onBack = { navController.popBackStack() })
         }
         
         composable(Screen.About.route) {

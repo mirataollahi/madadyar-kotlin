@@ -6,6 +6,7 @@ data class Video(
     val id: Int,
     val name: String,
     val image: String,
+    @SerializedName("link")
     val file: String?,
     val description: String,
     @SerializedName("video_category_id")

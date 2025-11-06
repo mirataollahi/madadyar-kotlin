@@ -121,7 +121,7 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(15.dp))
                     
                     PrimaryButton(
-                        text = "ادامه",
+                                text = "ادامه",
                         enabled = phoneNumber.text.length == 11,
                         isLoading = isLoading,
                         onClick = { if (phoneNumber.text.length == 11) viewModel.login(phoneNumber.text) }

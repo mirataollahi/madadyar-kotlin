@@ -39,6 +39,7 @@ import ir.madadyar.ui.component.LoadingIndicator
 import androidx.compose.foundation.background
 import androidx.compose.ui.platform.LocalContext
 import ir.madadyar.util.ErrorHandler
+import ir.madadyar.util.toFullImageUrl
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
@@ -215,7 +216,7 @@ fun CategoryCarouselItem(
             .clickable(onClick = onItemClick)
     ) {
         AsyncImage(
-            model = category.image,
+            model = category.image.toFullImageUrl(),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -372,7 +373,7 @@ fun BookCard(
     ) {
         Box {
             AsyncImage(
-                model = book.image,
+                model = book.image.toFullImageUrl(),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
@@ -487,7 +488,7 @@ fun VideoCard(
     ) {
         Box {
             AsyncImage(
-                model = video.image,
+                model = video.image.toFullImageUrl(),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop

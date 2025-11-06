@@ -77,7 +77,7 @@ data class BookDetailResponseData(
 
 // ==================== VIDEO RESPONSES ====================
 data class VideosResponseData(
-    val videos: PaginatedVideos? = null
+    val videos: List<Video>? = null
 )
 
 data class VideosListResponseData(
